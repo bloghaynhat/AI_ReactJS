@@ -1,17 +1,39 @@
 // Header.jsx
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Menu, X } from 'lucide-react';
 
 const Header = () => {
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const menuRef = useRef();
+
+  const toggleMobileNav = () => setMobileNavOpen(prev => !prev);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setMobileNavOpen(false);
+      }
+    };
+    if (mobileNavOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [mobileNavOpen]);
+
   return (
-    <header className="flex items-center justify-between px-6 py-3 bg-white shadow-md">
+    <header className="flex items-center justify-between px-6 py-3 bg-white shadow-md relative">
       {/* Logo */}
-      <div className="flex items-center space-x-2">
-        <img src="/logo.png" alt="Chefify Logo" className="w-6 h-6" />
+      <a href="/" className="flex items-center space-x-2">
+        <img src="https://cdn-icons-png.flaticon.com/512/3176/3176364.png" alt="Chefify Logo" className="w-6 h-6" />
         <span className="text-pink-600 font-bold text-lg">Chefify</span>
-      </div>
+      </a>
 
       {/* Search Bar */}
-      <div className="flex-1 mx-6">
+      <div className="flex-1 mx-6 hidden md:block">
         <input
           type="text"
           placeholder="What would you like to cook?"
@@ -19,17 +41,17 @@ const Header = () => {
         />
       </div>
 
-      {/* Navigation */}
+      {/* Desktop Nav */}
       <nav className="hidden md:flex space-x-4 text-sm text-gray-600">
-        <a href="#" className="hover:text-pink-600">What to cook</a>
-        <a href="#" className="hover:text-pink-600">Recipes</a>
-        <a href="#" className="hover:text-pink-600">Ingredients</a>
-        <a href="#" className="hover:text-pink-600">Occasions</a>
-        <a href="#" className="hover:text-pink-600">About Us</a>
+        <a href="#what-to-cook" className="hover:text-pink-600">What to cook</a>
+        <a href="#recipes" className="hover:text-pink-600">Recipes</a>
+        <a href="#ingredients" className="hover:text-pink-600">Ingredients</a>
+        <a href="#occasions" className="hover:text-pink-600">Occasions</a>
+        <a href="#about-us" className="hover:text-pink-600">About Us</a>
       </nav>
 
       {/* Buttons */}
-      <div className="flex items-center space-x-2 ml-4">
+      <div className="hidden md:flex items-center space-x-2 ml-4">
         <button className="px-4 py-1 text-sm text-pink-600 border border-pink-600 rounded-full hover:bg-pink-50">
           Login
         </button>
@@ -37,27 +59,77 @@ const Header = () => {
           Subscribe
         </button>
       </div>
+
+      {/* Mobile Menu Toggle */}
+      <button onClick={toggleMobileNav} className="md:hidden z-20 text-pink-600">
+        {mobileNavOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+      </button>
+
+      {/* Mobile Nav */}
+      {mobileNavOpen && (
+        <div
+          ref={menuRef}
+          className="absolute top-full left-0 w-full bg-white border-t border-gray-100 shadow-md md:hidden z-10"
+        >
+          <nav className="flex flex-col p-4 space-y-2 text-sm text-gray-700">
+            {[
+              { label: 'What to cook', href: '#what-to-cook' },
+              { label: 'Recipes', href: '#recipes' },
+              { label: 'Ingredients', href: '#ingredients' },
+              { label: 'Occasions', href: '#occasions' },
+              { label: 'About Us', href: '#about-us' },
+            ].map(({ label, href }) => (
+              <a
+                key={label}
+                href={href}
+                onClick={() => setMobileNavOpen(false)}
+                className="hover:text-pink-600"
+              >
+                {label}
+              </a>
+            ))}
+            <div className="flex gap-2 pt-4">
+              <button className="flex-1 py-2 text-pink-600 border border-pink-600 rounded-full hover:bg-pink-50">
+                Login
+              </button>
+              <button className="flex-1 py-2 text-white bg-pink-600 rounded-full hover:bg-pink-700">
+                Subscribe
+              </button>
+            </div>
+          </nav>
+        </div>
+      )}
     </header>
   );
 };
 
 const Banner = () => {
   return (
-    <section className="relative h-[500px] bg-cover bg-center" style={{ backgroundImage: 'url(/banner.jpg)' }}>
-      <div className="absolute inset-0 bg-black/30"></div>
-      <div className="relative z-10 max-w-md mx-auto mt-20 p-6 bg-white rounded-xl shadow-lg text-center">
-        <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-yellow-400 px-3 py-1 rounded-full text-xs font-semibold">
+    <section className="relative h-[500px] w-full bg-cover bg-center flex items-center justify-center" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1589308078054-8328e9f9fd5c?auto=format&fit=crop&w=1470&q=80)' }}>
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+
+      {/* Content Card */}
+      <div className="relative z-10 max-w-md bg-white bg-opacity-90 p-6 rounded-2xl shadow-xl text-center">
+        <div className="inline-block bg-yellow-400 text-xs font-semibold px-3 py-1 rounded-full mb-3">
           Recipe of the day
         </div>
-        <h2 className="mt-6 text-pink-600 font-bold text-xl">Salad Caprese</h2>
-        <p className="text-gray-600 text-sm mt-2">
+        <h2 className="text-2xl font-bold text-pink-600 mb-2">Salad Caprese</h2>
+        <p className="text-sm text-gray-700 mb-4">
           Classic Italian Salad Caprese: ripe tomatoes, fresh mozzarella, herbs, olive oil, and balsamic vinegar create a refreshing dish for lunch or appetizer.
         </p>
-        <div className="mt-4 flex flex-col items-center">
-          <img src="/avatar.jpg" alt="Author" className="w-10 h-10 rounded-full mb-1" />
-          <span className="text-sm font-medium text-gray-700">Salad Caprese</span>
+
+        {/* Author */}
+        <div className="flex items-center justify-center mb-4">
+          <img
+            src="https://randomuser.me/api/portraits/men/32.jpg"
+            alt="Salad Caprese"
+            className="w-8 h-8 rounded-full mr-2"
+          />
+          <span className="text-sm text-gray-800">Salad Caprese</span>
         </div>
-        <button className="mt-4 px-5 py-2 bg-pink-600 text-white rounded-full text-sm hover:bg-pink-700">
+
+        <button className="px-4 py-2 text-sm text-white bg-pink-600 rounded-full hover:bg-pink-700">
           View now →
         </button>
       </div>
@@ -96,18 +168,53 @@ const SectionHeader = ({ title, subtitle }) => (
 
 const RecipeSections = () => {
   const summerRecipes = [
-    { title: 'Italian-style tomato salad', image: '/recipe1.jpg', time: '14 minutes' },
-    { title: 'Spaghetti with vegetables and shrimp', image: '/recipe2.jpg', time: '15 minutes', isNew: true },
-    { title: 'Lotus delight salad', image: '/recipe3.jpg', time: '20 minutes' },
-    { title: 'Snack cakes', image: '/recipe4.jpg', time: '21 minutes', isNew: true },
+    { 
+      title: 'Italian-style tomato salad', 
+      image: 'https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?auto=format&fit=crop&w=800&q=80', 
+      time: '14 minutes' 
+    },
+    { 
+      title: 'Spaghetti with vegetables and shrimp', 
+      image: 'https://images.unsplash.com/photo-1523986371872-9d3ba2e2f642?auto=format&fit=crop&w=800&q=80', 
+      time: '15 minutes', 
+      isNew: true 
+    },
+    { 
+      title: 'Lotus delight salad', 
+      image: 'https://images.unsplash.com/photo-1604908177522-bb4f3fcfc502?auto=format&fit=crop&w=800&q=80', 
+      time: '20 minutes' 
+    },
+    { 
+      title: 'Snack cakes', 
+      image: 'https://images.unsplash.com/photo-1613141411346-4b6803f20ed3?auto=format&fit=crop&w=800&q=80', 
+      time: '21 minutes', 
+      isNew: true 
+    },
   ];
-
+  
   const videoRecipes = [
-    { title: 'Salad with cabbage and shrimp', image: '/recipe5.jpg', time: '32 minutes' },
-    { title: 'Salad of cove beans, shrimp and potatoes', image: '/recipe6.jpg', time: '20 minutes' },
-    { title: 'Sunny-side up fried egg', image: '/recipe7.jpg', time: '15 minutes' },
-    { title: 'Lotus delight salad', image: '/recipe8.jpg', time: '20 minutes' },
+    { 
+      title: 'Salad with cabbage and shrimp', 
+      image: 'https://images.unsplash.com/photo-1589302168068-964664d93dc0?auto=format&fit=crop&w=800&q=80', 
+      time: '32 minutes' 
+    },
+    { 
+      title: 'Salad of cove beans, shrimp and potatoes', 
+      image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80', 
+      time: '20 minutes' 
+    },
+    { 
+      title: 'Sunny-side up fried egg', 
+      image: 'https://images.unsplash.com/photo-1603048298542-e9c1a04e14b4?auto=format&fit=crop&w=800&q=80', 
+      time: '15 minutes' 
+    },
+    { 
+      title: 'Lotus delight salad', 
+      image: 'https://images.unsplash.com/photo-1600628422018-021b979a01da?auto=format&fit=crop&w=800&q=80', 
+      time: '20 minutes' 
+    },
   ];
+  
 
   return (
     <section className="px-6 py-12 bg-gray-50">
